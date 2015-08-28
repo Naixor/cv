@@ -1,0 +1,35 @@
+{
+    "name": "cv",
+    "version": "1.0.0",
+    "authors": [
+        "Naixor<hongyesoftware@gmail.com>"
+    ],
+    "description": "graphic process",
+    "main": "cv.js",
+    "keywords": [
+        "cv",
+        "graphic process",
+        "javascript",
+        "html5",
+        "canvas"
+    ],
+    "license": "BSD",
+    "homepage": "https://github.com/Naixor/cv",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests",
+        "src",
+        "Gruntfile.js",
+        "package.json"
+    ],
+    "devDependencies": {
+        "seajs": "~2.3.0"
+    },
+    "dependencies": {
+    },
+    "overrides": {
+    }
+}

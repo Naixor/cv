@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>cv example</title>
+    <style type="text/css">
+        #tools {
+            float: right;
+        }
+    </style>
+</head>
+<body>
+    <p>一些基础的图形图像处理算法集合，陆续更新中，使用说明：点击OK执行处理效果；可重复点击处理效果或者多个处理效果，按照点击顺序执行；直接点击OK则复原原图</p>
+    <div id="tools">
+        <p>File: 
+            <select id="file">
+                <option value="images/1.png">1.png</option>
+                <option value="images/2.png">2.png</option>
+                <option value="images/3.png">3.png</option>
+                <option value="images/4.png">4.png</option>
+                <option value="images/5.png">5.png</option>
+                <option value="images/6.png">6.png</option>
+                <option value="images/7.png">7.png</option>
+            </select>
+        </p>
+        <p><button id="Gray">Gray: </button></p>
+        <p><button id="Gauss">Gauss: </button> <input id="gauss" type="text" value="3,1.6"></p>
+        <p><button id="Bilateral">Bilateral: </button> <input id="bilateral" type="text" value="3,3,5"></p>
+        <p><button id="Laplace">Laplace: </button></p>
+        <p><button id="sLaplace">sLaplace: </button></p>
+        <p><button id="Sobel">Sobel: </button> <input id="sobel" type="text" value="100"></p>
+        <p><button id="Canny">Canny: </button> <input id="canny" type="text" value="100,30"></p>
+        <p><button id="DoG">DoG: </button> <input id="dog" type="text" value="3,3,1,0.3,6"></p>
+        <p><button id="Cartoon">Cartoon: </button> <input id="cartoon" type="text" value="14,20"></p>
+        <p><button id="ok">OK</button></p>
+    </div>
+    <canvas id="canvas"></canvas>
+</body>
+<script type="text/javascript" src="bower_components/seajs/dist/sea-debug.js"></script>
+<script type="text/javascript">
+    /* global seajs */
+    seajs.config({
+        base: './src'
+    });
+    define('start', function(require) {
+        var CV = require('cv');
+        var file = document.getElementById("file");
+        var scope = {};
+
+        scope.processes = [];
+
+        CV.canvas.init("#canvas", file.value, function(ctx, width, height) {});
+
+        document.getElementById('ok').onclick = function() {
+            CV.canvas.init("#canvas", file.value, function(ctx, width, height) {
+                var imageData = ctx.getImageData(0, 0, width, height);
+                scope.processes.forEach(function(process) {
+                    process.func.apply(CV, [imageData.data, width, height].concat(process.args));
+                });
+                scope.processes = [];
+                ctx.putImageData(imageData, 0, 0);
+            });    
+        }
+        
+        document.getElementById("Gray").onclick = function() {
+            scope.processes.push({
+                func: CV.filter.Gray.process,
+                args: []
+            });
+        }
+        document.getElementById("Gauss").onclick = function() {
+            scope.processes.push({
+                func: CV.filter.Gauss.process,
+                args: document.getElementById('gauss').value.split(',').map(function(v) { return +v; })
+            });
+        }
+        document.getElementById("Bilateral").onclick = function() {
+            scope.processes.push({
+                func: CV.filter.Bilateral.process,
+                args: document.getElementById('bilateral').value.split(',').map(function(v) { return +v; })
+            });
+        }
+        document.getElementById("Sobel").onclick = function() {
+            scope.processes.push({
+                func: CV.filter.Sobel.process,
+                args: document.getElementById('sobel').value.split(',').map(function(v) { return +v; })
+            });
+        }
+        document.getElementById("Laplace").onclick = function() {
+            scope.processes.push({
+                func: CV.filter.Laplace.process,
+                args: null
+            });
+        }
+        document.getElementById("sLaplace").onclick = function() {
+            scope.processes.push({
+                func: CV.filter.sLaplace.process,
+                args: null
+            });
+        }
+        document.getElementById("Canny").onclick = function() {
+            scope.processes.push({
+                func: CV.filter.Canny.process,
+                args: document.getElementById('canny').value.split(',').map(function(v) { return +v; })
+            });
+        }
+        document.getElementById("DoG").onclick = function() {
+            scope.processes.push({
+                func: CV.filter.DoG.process,
+                args: document.getElementById('dog').value.split(',').map(function(v) { return +v; })
+            });     
+        }
+        document.getElementById("Cartoon").onclick = function() {
+            scope.processes.push({
+                func: CV.filter.Cartoon.process,
+                args: document.getElementById('cartoon').value.split(',').map(function(v) { return +v; })
+            });   
+        }
+    });
+    seajs.use('start');
+</script>
+</html>
