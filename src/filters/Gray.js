@@ -1,4 +1,11 @@
+/**
+ * 灰度处理
+ */
 define(function(require, exports, module) {
+	/**
+	 * 灰度处理
+	 * @param {Array} data 图像数据
+	 */
 	var Gray = function(data) {
 		var l = data.length - 1,
 			rgb = 0;

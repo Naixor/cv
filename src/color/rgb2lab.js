@@ -1,6 +1,13 @@
+/**
+ * 处理图像色彩由rgb转lab
+ */
 define(function(require) {
 	var rgb2xyz = require('./rgb2xyz');
-	
+	/**
+	 * rgb->xyz->lab
+	 * @param  {Array} rgb [r, g, b]
+	 * @return {Array}     [l, a, b]
+	 */
 	return function(rgb) {
 		var xyz = rgb2xyz(rgb),
 		    x = xyz[0],
@@ -16,10 +23,12 @@ define(function(require) {
 		y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + (16 / 116);
 		z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + (16 / 116);
 
-		l = Math.round((116 * y) - 16);
-		a = Math.round(500 * (x - y));
-		b = Math.round(200 * (y - z));
+		l = (116 * y) - 16;
+		a = 500 * (x - y);
+		b = 200 * (y - z);
 
-		return [l, a, b];
+		return [l, a, b].map(function(num) {
+			return Math.round(num);
+		});
 	}
 });

@@ -1,6 +1,14 @@
+/**
+ * 双边滤镜模块
+ */
 define(function(require, exports, module) {
+	// 默认界外颜色
 	var boundaryFillColor = 127;
 
+	/**
+	 * 设置超界颜色
+	 * @param {Number} _boundaryFillColor  超界颜色
+	 */
 	var setBoundaryFillColor = function(_boundaryFillColor) {
 		if (_boundaryFillColor < 0 || boundaryFillColor > 255) {
 			return;
@@ -8,35 +16,46 @@ define(function(require, exports, module) {
 		boundaryFillColor = _boundaryFillColor;
 	};
 
+	/**
+	 * 基于rgb通道的双边滤波处理
+	 * @param {Array}  data   图像数据
+	 * @param {Number} width  图像宽
+	 * @param {Number} height 图像高
+	 * @param {Number} radius 卷积半径
+	 * @param {Number} sigmad 基于距离的高斯滤波系数
+	 * @param {[type]} sigmar 基于色彩的高斯滤波系数
+	 */
 	var BilateralFilter = function(data, width, height, radius, sigmad, sigmar) {
 		radius = radius || 3;
-		sigmad = sigmad || radius/3;
+		sigmad = sigmad || radius / 3;
 		sigmar = sigmar || 1;
 
 		// 计算一次高斯渐变
 		var gsDFilter = new Array(radius * 2 + 1),
 			gsCFilter = new Array(255 * 2 + 1),
-			g = 1/(Math.sqrt(Math.PI * 2) * sigmad),
+			g = 1 / (Math.sqrt(Math.PI * 2) * sigmad),
 			f = -1 / (2 * sigmad * sigmad),
-			g1 = 1/(Math.sqrt(Math.PI * 2) * sigmar),
+			g1 = 1 / (Math.sqrt(Math.PI * 2) * sigmar),
 			f1 = -1 / (2 * sigmar * sigmar),
 			gaussSum = 0.0;
+
+		// 算出基于距离的一维高斯滤波系数, 后面做两次一维高斯滤波处理时会用到
 		for (var i = -radius; i <= 0; i++) {
 			gsDFilter[i + radius] = gsDFilter[radius - i] = g * Math.exp(f * i * i);
 			gaussSum += (gsDFilter[i + radius] + gsDFilter[radius - i]);
 		};
+		// 算出基于色彩距离的高斯滤波系数, 后面使用时直接来这里拿, 以节省每次重算的消耗
 		for (var i = 0; i < 256; i++) {
 			gsCFilter[i] = gsCFilter[0-i] = g1 * Math.exp(f1 * i * i);
 		};
-		// for (var i = 0; i < radius; i++) {
-		// 	gsDFilter[i + radius] = gsDFilter[radius - i] = gsDFilter[radius - i]/gaussSum;
-		// };
 
 		var idxn = 0, idxt = 0, 
 			r, g, b, k,
 			weightr, weightg, weightb,
 			gaussSumr, gaussSumg, gaussSumb;
-		// x方向渐变
+
+		// 下面对图像做x y两个方向的高斯一维滤波处理, 来实现对图像的一次二维高斯卷积处理
+		// x方向计算像素颜色差值和像素距离差值的加权平均
 		for (var y = 0; y < height; y++) {
 			for (var x = 0; x < width; x++) {
 				r = b = g = 0;
@@ -70,7 +89,8 @@ define(function(require, exports, module) {
 				data[idxt + 2] = b / gaussSumb;
 			};	
 		};
-		// y方向渐变
+
+		// y方向计算像素颜色差值和像素距离差值的加权平均
 		for (var x = 0; x < width; x++) {
 			for (var y = 0; y < height; y++) {
 				r = b = g = 0;
@@ -105,6 +125,15 @@ define(function(require, exports, module) {
 		};
 	}
 
+	/**
+	 * 单独基于r通道的双边滤波处理, 处理内容同上
+	 * @param {Array}  data   图像数据
+	 * @param {Number} width  图像宽
+	 * @param {Number} height 图像高
+	 * @param {Number} radius 卷积半径
+	 * @param {Number} sigmad 基于距离的高斯滤波权值
+	 * @param {[type]} sigmar 基于色彩的高斯滤波权值
+	 */
 	var BilateralFilterR = function(data, width, height, radius, sigmad, sigmar) {
 		radius = radius || 3;
 		sigmad = sigmad || radius/3;
@@ -125,9 +154,6 @@ define(function(require, exports, module) {
 		for (var i = 0; i < 256; i++) {
 			gsCFilter[i] = gsCFilter[0-i] = g1 * Math.exp(f1 * i * i);
 		};
-		// for (var i = 0; i < radius; i++) {
-		// 	gsDFilter[i + radius] = gsDFilter[radius - i] = gsDFilter[radius - i]/gaussSum;
-		// };
 
 		var idxn = 0, idxt = 0, 
 			r, k,

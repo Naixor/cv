@@ -1,11 +1,7 @@
+/**
+ * cv封装
+ */
 define(function(require, exports, module) {
-	module.constructor.prototype.extend = function(base, child) {
-		var metod;
-		for (metod in base) {
-			child[metod] = base;
-		}	
-	}
-
 	module.exports.filter = {
 		Gray: require('./filters/Gray'),
 		Gauss: require('./filters/Gauss'),
