@@ -1,4 +1,12 @@
+/**
+ * 处理图像色彩由xyz转rgb
+ */
 define(function(require) {
+	/**
+	 * xyz->rgb
+	 * @param  {Array} xyz [x, y, z]
+	 * @return {Array}     [r, g, b]
+	 */
 	return function(xyz) {
 		var x = xyz[0] / 100,
 		  	y = xyz[1] / 100,
@@ -20,6 +28,8 @@ define(function(require) {
 		g = Math.min(Math.max(0, g), 1);
 		b = Math.min(Math.max(0, b), 1);
 
-		return [r * 255, g * 255, b * 255];
+		return [r * 255, g * 255, b * 255].map(function(num) {
+			return Math.round(num);
+		});
 	}
 });

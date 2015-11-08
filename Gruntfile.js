@@ -71,8 +71,32 @@ module.exports = function(grunt) {
                     'dist/cv.min.js': 'dist/cv.js'
                 }
             }
-        }
+        },
 
+        unit_test_build: {
+            test: {
+                options: {
+                    title: 'CV Unit Test',
+                    seajs: '../bower_components/seajs/dist/sea-debug.js',
+                    mochajs: '../bower_components/mocha/mocha.js',
+                    mochacss: '../bower_components/mocha/mocha.css',
+                    chaijs: '../bower_components/chai/chai.js'
+                },
+                files: {
+                    'unit-test.html': ['test/**/*.js', '!test/filters/filter_test.js']
+                }
+            }
+        },
+
+        mocha: {
+            test: {
+                options: {
+                    timeout: 10000,
+                    run: false
+                },
+                src: ['unit-test.html']
+            }
+        }
     });
 
     // These plugins provide necessary tasks.
@@ -82,8 +106,10 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-unit-test-build');
+    grunt.loadNpmTasks('grunt-mocha');
 
     // Build task(s).
     grunt.registerTask('default', ['clean', 'dependence', 'concat', 'uglify']);
-
+    grunt.registerTask('test', ['unit_test_build']);
 };

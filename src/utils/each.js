@@ -1,9 +1,26 @@
 /**
- * 针对canvas改造的each，使用更便捷
+ * 针对canvas改造了util中的each, 使用更便捷,
+ * 通过canvas获取的图像数据是一维数组,
+ * 但是要按照二维数组来处理逻辑, 此文件提供其处理方式
  */
 define(function(require, exports, module) {
 	var util = require('./util');
-
+	/**
+	 * each.xDirection, 按照X轴方向遍历处理二维数组
+	 * @param  {Array} imagedata 一维数组
+	 * @param  {Array} startPoint [x, y]遍历的起始点
+	 * @param  {Array} endPoint [x, y]遍历的终结点
+	 * @param  {Function} handler 处理函数  
+	 * @return {Undefined}         没有返回值
+	 */
+	/**
+	 * each.yDirection, 按照Y轴方向遍历处理二维数组
+	 * @param  {Array} imagedata 一维数组
+	 * @param  {Array} startPoint [x, y]遍历的起始点
+	 * @param  {Array} endPoint [x, y]遍历的终结点
+	 * @param  {Function} handler 处理函数  
+	 * @return {Undefined}         没有返回值
+	 */
 	['xDirection', 'yDirection'].map(function(functionName) {
 		return {
 			name: functionName,

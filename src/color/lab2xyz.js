@@ -1,4 +1,12 @@
+/**
+ * 处理图像色彩由lab转xyz
+ */
 define(function() {
+	/**
+	 * lab->xyz
+	 * @param  {Array} lab [l, a, b]
+	 * @return {Array}     [x, y, z]
+	 */
 	return function lab2xyz(lab) {
 		var l = lab[0],
 		  	a = lab[1],
@@ -17,6 +25,8 @@ define(function() {
 
 		z = z / 108.883 <= 0.008859 ? z = (108.883 * (y2 - (b / 200) - (16 / 116))) / 7.787 : 108.883 * Math.pow(y2 - (b / 200), 3);
 
-		return [x, y, z];
+		return [x, y, z].map(function(num) {
+			return Math.round(num);
+		});
 	}
 });

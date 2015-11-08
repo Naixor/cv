@@ -21,6 +21,25 @@ cv.js是一个用于图像处理的前端JS库，较完整的保留了图像处�
 
 图形图像的学习是永无止境的，后续会添加Harris角点提取，以及图像匹配的处理进来。
 
+## DEMO
+
+访问目录中`example.html` 或 `index.html`，每次切换图片需要点击OK键
+
 ## 使用
 
-可参照 `example.html` 或 `index.html` 使用，
+可参照 `example.html` 或 `index.html` 使用
+
+## 初始化
+
+- 需要先安装`npm`和`bower`，执行`npm install`然后`bower install`
+- `npm init`
+
+## 打包压缩
+
+`grunt`
+
+## 测试
+
+- 执行`grunt test`，目录中后会生成一个名为`unit-test.html`的文件
+- `php -S localhost:8080`
+- 打开浏览器访问`http://localhost:8080/unit-test.html`，或者Mac下直接命令行执行`open http://localhost:8080/unit-test.html`

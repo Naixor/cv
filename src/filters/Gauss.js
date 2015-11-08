@@ -1,8 +1,12 @@
+/**
+ * 高斯滤镜
+ */
 define(function(require, exports, module) {
 	var util = require('../utils/util');
 	// 默认使用127为超出边界填充色
 	var boundaryFillColor = 127;
 
+	// 设置越界颜色
 	var setBoundaryFillColor = function(_boundaryFillColor) {
 		if (_boundaryFillColor < 0 || boundaryFillColor > 255) {
 			return;
@@ -10,9 +14,18 @@ define(function(require, exports, module) {
 		boundaryFillColor = _boundaryFillColor;
 	};
 
+	/**
+	 * 高斯滤镜, 这个处理使用两次一维高斯滤波处理, 来实现一次二维高斯卷积
+	 * @param {Array}  data   图像数据
+	 * @param {Number} width  图像宽
+	 * @param {Number} height 图像高
+	 * @param {Number} radius 卷积半径
+	 * @param {Number} sigma  卷积系数
+	 */
 	var Gauss = function(data, width, height, radius, sigma) {
 		radius = radius || 3;
 		sigma = sigma || radius/3;
+		
 		// 计算一次高斯渐变
 		var gaussFilter = new Array(radius * 2 + 1),
 			g = 1/(Math.sqrt(Math.PI * 2) * sigma),
@@ -52,6 +65,7 @@ define(function(require, exports, module) {
 				data[idx + 2] = b;
 			};	
 		};
+
 		// y方向渐变
 		for (var x = 0; x < width; x++) {
 			for (var y = 0; y < height; y++) {
@@ -78,6 +92,14 @@ define(function(require, exports, module) {
 		};
 	};
 
+	/**
+	 * 一个快速高斯滤镜, 用模拟的卷积核来直接做二次卷积计算, 
+	 * 缺点: 没法自定义越界点的颜色而且不能自定义半径和系数
+	 * 优点: 快啊, 比上面那个快多了
+	 * @param {Array}  data   图像数据
+	 * @param {Number} width  图像宽
+	 * @param {Number} height 图像高
+	 */
 	var Gauss_default = function(data, width, height) {
 		util.each.xDirection(data, width, 0, 0, width, height, function(i, x, y) {
 			for (var n = 0; n < 3; n++) {
