@@ -23,7 +23,8 @@ cv.js是一个用于图像处理的前端JS库，较完整的保留了图像处�
 
 ## DEMO
 
-访问目录中`example.html` 或 `index.html`，每次切换图片需要点击OK键
+- 访问目录中`example.html` 或 `index.html`，每次切换图片需要点击OK键
+- 直接预览[DEMO](http://naixor.github.io/cv/)
 
 ## 使用
 
