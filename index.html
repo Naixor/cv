@@ -11,6 +11,7 @@
 </head>
 <body>
     <p>一些基础的图形图像处理算法集合，陆续更新中，使用说明：点击OK执行处理效果；可重复点击处理效果或者多个处理效果，按照点击顺序执行；直接点击OK则复原原图</p>
+    <p>操作队列：<l id="cmdList"></l></p>
     <div id="tools">
         <p>File: 
             <select id="file">
@@ -21,6 +22,7 @@
                 <option value="images/5.png">5.png</option>
                 <option value="images/6.png">6.png</option>
                 <option value="images/7.png">7.png</option>
+                <option value="images/lena.bmp">lena.bmp</option>
             </select>
         </p>
         <p><button id="Gray">Gray: </button></p>
@@ -39,9 +41,39 @@
 <script type="text/javascript" src="dist/cv.js"></script>
 <script type="text/javascript">
     var file = document.getElementById("file");
-    var scope = {};
+    var cmdList = document.getElementById("cmdList");
 
-    scope.processes = [];
+    function obj(o) {
+        function F() {};
+        F.prototype = o;
+        return new F();
+    }
+    function myArray() {
+        Array.prototype.constructor.apply(this, arguments);
+    }
+    myArray.prototype = obj(Array.prototype);
+    myArray.prototype.push = function() {
+        var r = Array.prototype.push.apply(this, arguments);
+        publicChange(this);
+        return r;
+    }
+
+    var scope = {
+        val: new myArray(),
+        get processes() {
+            return this.val;
+        },
+        set processes(_val) {
+            this.val = new myArray(_val);
+            publicChange(this.val);
+        }
+    };
+
+    function publicChange(val) {
+        cmdList.innerHTML = val.map(function(p) {
+            return p.name;
+        }).join(', ');   
+    }
 
     CV.canvas.init("#canvas", file.value, function(ctx, width, height) {});
 
