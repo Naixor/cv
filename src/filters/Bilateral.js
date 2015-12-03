@@ -10,7 +10,7 @@ define(function(require, exports, module) {
 	 * @param {Number} _boundaryFillColor  超界颜色
 	 */
 	var setBoundaryFillColor = function(_boundaryFillColor) {
-		if (_boundaryFillColor < 0 || boundaryFillColor > 255) {
+		if (_boundaryFillColor < 0 || _boundaryFillColor > 255) {
 			return;
 		}
 		boundaryFillColor = _boundaryFillColor;

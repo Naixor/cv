@@ -63,17 +63,20 @@ define(function(require, exports, module) {
 		];
 
 		var _data = util.copyImageData(data),
-			cx, cy, p1, p2,
+			cx = [], cy, p1, p2,
 			gradientMatrix = [], tanMatrix = [], gradient,
 			idx;
 
 		// 计算边缘梯度
 		util.each.xDirection(data, width, 0, 0, width, height, function(i, x, y){
-			cx = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, 1, boundaryFillColor), prewittRatioX, 1, 0),
+			cx[i] = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, 1, boundaryFillColor), prewittRatioX, 1, 0);
+		});
+
+		util.each.yDirection(data, width, 0, 0, width, height, function(i, x, y){
 			cy = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, 1, boundaryFillColor), prewittRatioY, 1, 0);
 
-			tanMatrix[i] = cx === 0 ? 1000 : cy / cx;
-			gradientMatrix[i] = Math.round(Math.sqrt(cx*cx + cy*cy));
+			tanMatrix[i] = cx[i] === 0 ? 1000 : cy / cx[i];
+			gradientMatrix[i] = Math.round(Math.sqrt(cx[i]*cx[i] + cy*cy));
 		});
 
 		_data = util.copyImageData(data);
@@ -147,7 +150,7 @@ define(function(require, exports, module) {
 			} else if (gradient < lowTrash){
 				data[i] = data[i + 1] = data[i + 2] = 0;
 			} else {
-				data[_idx] = data[_idx + 1] = data[_idx + 2] = 0;
+				data[i] = data[i + 1] = data[i + 2] = 0;
 				var dx = [-1, 0, 1, -1, 1, -1, 0, 1],
 					dy = [-1, -1, -1, 0, 0, 1, 1, 1],
 					cx, cy, _idx;
@@ -156,7 +159,7 @@ define(function(require, exports, module) {
 					cy = y + dy[i];
 					_idx = (cy * width + cx) << 2;
 					if (gradientMatrix[_idx] >= highTrash) {
-						data[_idx] = data[_idx + 1] = data[_idx + 2] = 255;
+						data[i] = data[i + 1] = data[i + 2] = 255;
 					}
 				};
 			}

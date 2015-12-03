@@ -22,6 +22,25 @@ define(function(require, exports, module) {
 	 * @return {Undefined}         没有返回值
 	 */
 	['xDirection', 'yDirection'].map(function(functionName) {
+		module.exports[functionName] = function(imagedata, startPoint, endPoint, handler) {
+			var args = [].slice.call(arguments);
+			imagedata = args.shift();
+			handler = args.pop();
+
+			if (!util.isFunction(handler)) {
+				throw new Error('没有传入合法回调函数');
+			};
+
+			var width = imagedata.width, 
+				height = imagedata.height,
+				startX = startPoint.x || startPoint[0] || 0,
+				startY = startPoint.y || startPoint[1] || 0,
+				endX = endPoint.x || endPoint[0] || width,
+				endY = endPoint.y || endPoint[1] || height;
+
+			util.each[functionName](imagedata.data, width, startX, startY, endX, endY, handler);
+		};
+
 		return {
 			name: functionName,
 			constructor: function(imagedata, startPoint, endPoint, handler) {
@@ -44,6 +63,6 @@ define(function(require, exports, module) {
 			}
 		}
 	}).forEach(function(exports) {
-		module.exports[exports.name] = exports.constructor;		
+		// module.exports[exports.name] = exports.constructor;	
 	});
 });

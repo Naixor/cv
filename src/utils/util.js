@@ -11,9 +11,9 @@ define(function(require, exports, module) {
 		 * @param  {Number}   startY  起始点Y坐标
 		 * @param  {Number}   endX    结束点X坐标
 		 * @param  {Number}   endY    结束点Y坐标
-		 * @param  {Function} handler 处理函数 
-		 *                            handler(index, x, y) 
-		 *                            index为当前点在一维数组中的真实位置 
+		 * @param  {Function} handler 处理函数
+		 *                            handler(index, x, y)
+		 *                            index为当前点在一维数组中的真实位置
 		 *                            x为模拟的二维数组中x坐标
 		 *                            y为模拟的二维数组中y坐标
 		 * @return {Undefined}        没有返回值
@@ -26,7 +26,7 @@ define(function(require, exports, module) {
 			}
 		},
 		yDirection: function(data, width, startX, startY, endX, endY, handler) {
-			for (var x = startX; x < endX; x++) {	
+			for (var x = startX; x < endX; x++) {
 				for(var y = startY; y < endY; y++) {
 					handler((y*width + x) << 2, x, y);
 				};
@@ -51,7 +51,7 @@ define(function(require, exports, module) {
 		return d/divisor + offset;
 	};
 
-	
+
 	/**
 	 * 获取图像信息中被卷积的一部分数据
 	 * @param  {Array}  data              图像内容
@@ -62,7 +62,7 @@ define(function(require, exports, module) {
 	 * @param  {Number} n                 当前卷积计算的通道(rgba -> 0 1 2 3)
 	 * @param  {Number} radius            卷积半径
 	 * @param  {Number} boundaryFillColor 超过边界的补充色
-	 * @return {Array} 					  图像被卷积处理后的数据                  
+	 * @return {Array} 					  图像被卷积处理后的数据
 	 */
 	var getImageConvolution = function (data, width, height, x, y, n, radius, boundaryFillColor) {
 		var dx = 0,
@@ -70,7 +70,7 @@ define(function(require, exports, module) {
 			_y, _x,
 			result = [],
 			radius = radius || 1,
-			boundaryFillColor = boundaryFillColor || 0;
+			boundaryFillColor = boundaryFillColor || data[(width * y + x) * 4 + n];
 
 		for (dy = -radius; dy <= radius; dy++) {
 			_y = y + dy;
@@ -81,7 +81,7 @@ define(function(require, exports, module) {
 					continue;
 				}
 				result.push(data[(_x + width*_y) * 4 + n]);
-			};	
+			};
 		};
 		return result;
 	};
@@ -100,7 +100,7 @@ define(function(require, exports, module) {
 	 * @param  {Array|Function|Object|String|Boolean|Number} param 待判断的变量
 	 * @return {Boolean}        								   是否符合判断
 	 */
-	['Array', 'Function', 'Object', 'String', 'Boolean', 'Number'].forEach(function(type) {	
+	['Array', 'Function', 'Object', 'String', 'Boolean', 'Number'].forEach(function(type) {
 		module.exports['is' + type] = (function(type) {
 			return function(param) {
 				return Object.prototype.toString.call(param) === '[object '+ type +']';
@@ -108,8 +108,27 @@ define(function(require, exports, module) {
 		})(type);
 	});
 
+	/**
+	 * 通用的超界颜色填充值设置class
+	 * @param {number} bfc 默认设置值
+	 */
+	var BoundaryFillColor = function (bfc) {
+		var boundaryFillColor = bfc;
+
+		this.set = function (aboundaryFillColor) {
+			if (aboundaryFillColor < 0 || aboundaryFillColor > 255) {
+				return;
+			}
+			boundaryFillColor = aboundaryFillColor;
+		}
+		this.val = (function (boundaryFillColor) {
+			return boundaryFillColor;
+		})(boundaryFillColor);
+	}
+
 	module.exports.each = each;
 	module.exports.getImageConvolution = getImageConvolution;
 	module.exports.convolution = convolution;
 	module.exports.copyImageData = copyImageData;
+	module.exports.BoundaryFillColor = BoundaryFillColor;
 });
