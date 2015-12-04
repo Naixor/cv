@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Scale Test</title>
+        <style type="text/css">
+            #tools {
+                float: right;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="tools">
+            <p>
+                双线性插值缩放图片
+            </p>
+            <p>File:
+                <select id="file">
+                    <option value="images/1.png">1.png</option>
+                    <option value="images/2.png">2.png</option>
+                    <option value="images/3.png">3.png</option>
+                    <option value="images/4.png">4.png</option>
+                    <option value="images/5.png">5.png</option>
+                    <option value="images/6.png">6.png</option>
+                    <option value="images/7.png">7.png</option>
+                    <option value="images/8.png">8.png</option>
+                    <option value="images/lena.bmp">lena.bmp</option>
+                </select>
+            </p>
+            <p>
+                BilinearScale: <input id="bilateral" type="text" value="2">
+            </p>
+            <p><button id="ok">OK</button></p>
+        </div>
+        <canvas id="canvas" width="300" height="300"></canvas>
+        <canvas id="canvasScale" width="300" height="300"></canvas>
+    </body>
+    <script type="text/javascript" src="bower_components/seajs/dist/sea-debug.js"></script>
+    <script type="text/javascript">
+        seajs.config({
+            base: './src'
+        });
+        define('start', function (require) {
+            var CV = require('./cv');
+            var scale = require('./scale/Bilinear').process;
+
+            var file = document.getElementById("file");
+            var bilateral = document.getElementById("bilateral");
+
+            var canvasScale = document.getElementById("canvasScale");
+
+            CV.canvas.init('#canvas', file.value, function (ctx, width, height) {});
+
+            file.onchange = function () {
+                CV.canvas.init('#canvas', file.value, function (ctx, width, height) {});
+            }
+
+            document.getElementById('ok').onclick = function () {
+                CV.canvas.init('#canvas', file.value, function (ctx, width, height) {
+                    var scaleXY = bilateral.value.split(',');
+                    var scaleX = scaleXY[0] || 1;
+                    var scaleY = scaleXY[1] || scaleX;
+                    var draw = scale(ctx.getImageData(0, 0, width, height).data, width, height, scaleX, scaleY);
+                    canvasScale.width = draw.width;
+                    canvasScale.height = draw.height;
+                    var context = canvasScale.getContext('2d');
+;
+                    context.putImageData(draw, 0, 0);
+                });
+            }
+        });
+        seajs.use('start');
+    </script>
+</html>
