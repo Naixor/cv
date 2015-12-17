@@ -13,6 +13,7 @@ define(function(require, exports, module) {
 		DoG: require('./filters/DoG'),
 		Cartoon: require('./filters/Cartoon'),
 		HarrisCorner: require('./filters/HarrisCorner'),
+		SIFT: require('./filters/SIFT'),
 		LoG: require('./filters/LoG')
 	}
 

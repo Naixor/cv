@@ -13,10 +13,10 @@ define(function(require, exports, module) {
 	 * @param  {Number} width  图像宽度
 	 * @param  {Number} height 图像高度
 	 */
-	var sLaplace = function(data, width, height) {
+	var sLaplace = function(data, width, height, boundaryFillColor) {
 		Gray(data, width, height);
 		Gauss(data, width, height, 3, 1);
-		Laplace(data, width, height);
+		Laplace(data, width, height, boundaryFillColor);
 
 		var num = 0;
 	    util.each.xDirection(data, width, 0, 0, width, height, function(index) {

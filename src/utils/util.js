@@ -1,7 +1,9 @@
 /**
  * 工具处理模块, 封装了供其他模块使用的基础函数
  */
-define(function(require, exports, module) {
+define(function(require) {
+	var exports = {};
+
 	var each = {
 		/**
 		 * 按照X方向处理图像数据
@@ -96,12 +98,53 @@ define(function(require, exports, module) {
 	};
 
 	/**
+	 * 创建可直接用于canvas context drawImage使用的数据，测试用
+	 * @method createImageDate
+	 * @param  {[type]}        data   [description]
+	 * @param  {[type]}        width  [description]
+	 * @param  {[type]}        height [description]
+	 * @return {[type]}               [description]
+	 */
+	var createImageDate = function (data, width, height) {
+		if (data instanceof Array) {
+			data = copyImageData(data);
+		} else if (data instanceof Uint8ClampedArray) {
+
+		} else {
+			throw new Error('传入数据类型有问题');
+		}
+		return new ImageData(data, width, height);
+	};
+
+	/**
+     * 在角点上画一个colo色r十字
+     */
+    var drawCorner = function (data, width, height, x, y, color) {
+        var ix = 0,
+            iy;
+        color = color || [255, 0, 0];
+        [-1, 0, 1].map(function (d) {
+            ix = (y * width + x + d) << 2;
+            iy = ((y + d) * width + x) << 2;
+            if (ix < 0 || ix === width || iy < 0 || iy === height) {
+                return;
+            };
+            data[ix] = color[0];
+            data[ix + 1] = color[1];
+            data[ix + 2] = color[2];
+            data[iy] = color[0];
+            data[iy + 1] = color[1];
+            data[iy + 2] = color[2];
+        });
+    };
+
+	/**
 	 * 封装util下的is方法, 用于对基础类型的真实判断
 	 * @param  {Array|Function|Object|String|Boolean|Number} param 待判断的变量
 	 * @return {Boolean}        								   是否符合判断
 	 */
 	['Array', 'Function', 'Object', 'String', 'Boolean', 'Number'].forEach(function(type) {
-		module.exports['is' + type] = (function(type) {
+		exports['is' + type] = (function(type) {
 			return function(param) {
 				return Object.prototype.toString.call(param) === '[object '+ type +']';
 			}
@@ -120,15 +163,19 @@ define(function(require, exports, module) {
 				return;
 			}
 			boundaryFillColor = aboundaryFillColor;
-		}
-		this.val = (function (boundaryFillColor) {
+		};
+		this.val = function (scope) {
 			return boundaryFillColor;
-		})(boundaryFillColor);
+		};
 	}
 
-	module.exports.each = each;
-	module.exports.getImageConvolution = getImageConvolution;
-	module.exports.convolution = convolution;
-	module.exports.copyImageData = copyImageData;
-	module.exports.BoundaryFillColor = BoundaryFillColor;
+	exports.each = each;
+	exports.drawCorner = drawCorner;
+	exports.getImageConvolution = getImageConvolution;
+	exports.convolution = convolution;
+	exports.copyImageData = copyImageData;
+	exports.createImageDate = createImageDate;
+	exports.BoundaryFillColor = BoundaryFillColor;
+
+	return exports;
 });

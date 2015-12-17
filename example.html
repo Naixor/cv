@@ -21,8 +21,9 @@
                 <option value="images/4.png">4.png</option>
                 <option value="images/5.png">5.png</option>
                 <option value="images/6.png">6.png</option>
-                <option selected value="images/7.png">7.png</option>
+                <option value="images/7.png">7.png</option>
                 <option value="images/8.png">8.png</option>
+				<option selected value="images/lena.png">lena.png</option>
                 <option value="images/lena.bmp">lena.bmp</option>
             </select>
         </p>
@@ -36,7 +37,9 @@
         <p><button id="DoG">DoG: </button> <input id="dog" type="text" value="3,3,1,0.3,6"></p>
         <p><button id="Cartoon">Cartoon: </button> <input id="cartoon" type="text" value="14,20"></p>
         <p><button id="HarrisCorner">HarrisCorner: </button> <input id="harriscorner" type="text" value="1"></p>
+		<p><button id="DoGCorner">DoGCorner: </button></p>
 		<p><button id="LoG">LoG: </button></p>
+		<p><button id="Sift">SIFT: </button></p>
         <p><button id="ok">OK</button></p>
     </div>
     <canvas id="canvas"></canvas>
@@ -167,10 +170,24 @@
                 args: document.getElementById('harriscorner').value.split(',').map(function(v) { return +v; })
             });
         }
+		document.getElementById("DoGCorner").onclick = function () {
+            scope.processes.push({
+                name: 'DoGCorner',
+                func: CV.filter.DoG.corner,
+                args: null
+            });
+        }
 		document.getElementById("LoG").onclick = function() {
             scope.processes.push({
                 name: 'LoG',
                 func: CV.filter.LoG.process,
+                args: null
+            });
+        }
+		document.getElementById("Sift").onclick = function() {
+            scope.processes.push({
+                name: 'SIFT',
+                func: CV.filter.SIFT.process,
                 args: null
             });
         }

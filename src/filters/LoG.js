@@ -5,7 +5,6 @@
  */
 define(function (require, exports, module) {
     var util = require('../utils/util');
-    var boundaryFillColor = new util.BoundaryFillColor(127);
     var Gray = require('./Gray').process;
 
     // 这里有问题后续重新实现
@@ -37,11 +36,12 @@ define(function (require, exports, module) {
         });
     }
 
-    var LoG = function (data, width, height) {
+    var LoG = function (data, width, height, boundaryFillColor) {
+        boundaryFillColor = boundaryFillColor || 127;
         Gray(data);
 		var _data = util.copyImageData(data);
 		util.each.xDirection(data, width, 0, 0, width, height, function(i, x, y) {
-			data[i] = data[i + 1] = data[i + 2] = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, 2, boundaryFillColor.val), [
+			data[i] = data[i + 1] = data[i + 2] = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, 2, boundaryFillColor), [
 				0, 0, 1, 0, 0,
                 0, 1, 2, 1, 0,
                 1, 2, -16, 2, 1,
@@ -52,5 +52,4 @@ define(function (require, exports, module) {
     }
 
     module.exports.process = LoG;
-    module.exports.setBoundaryFillColor = boundaryFillColor.set;
 });

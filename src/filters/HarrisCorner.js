@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var Matrix = require('../utils/Matrix');
     var util = require('../utils/util');
     var gray = require('./Gray').process;
-    var boundaryFillColor = new util.BoundaryFillColor(0);
+    var drawCorner = util.drawCorner;
 
     /**
      * 获得二维高斯渐变矩阵
@@ -113,28 +113,6 @@ define(function (require, exports, module) {
     }
 
     /**
-     * 在角点上画一个colo色r十字
-     */
-    var drawCorner = function (data, width, height, x, y, color) {
-        var ix = 0,
-            iy;
-        color = color || [255, 0, 0];
-        [0].map(function (d) {
-            ix = (y * width + x + d) << 2;
-            iy = ((y + d) * width + x) << 2;
-            if (ix < 0 || ix === width || iy < 0 || iy === height) {
-                return;
-            };
-            data[ix] = color[0];
-            data[ix + 1] = color[1];
-            data[ix + 2] = color[2];
-            data[iy] = color[0];
-            data[iy + 1] = color[1];
-            data[iy + 2] = color[2];
-        });
-    }
-
-    /**
      * Harris 角点标记
      * @param  {Array}  data   图像数据
      * @param  {number}  width  图像宽
@@ -143,8 +121,9 @@ define(function (require, exports, module) {
      * @param  {number}  k      R = {R: det(M) - k * trace(M)^2 >= trash},k~[0.04, 0.06]
      * @param  {number}  qualityLevel  非极大值抑制的阀值选取系数,trash = highest * qualityLevel;缺省为0.01
      */
-    var harrisCorner = function (data, width, height, radius, k, qualityLevel) {
+    var harrisCorner = function (data, width, height, radius, k, qualityLevel, boundaryFillColor) {
         radius = radius || 1;
+        boundaryFillColor = boundaryFillColor || 0;
 
         var gaussWindow = getGaussWindow(radius, 1).reduce(function (mx1, mx2) {
             return mx1.concat(mx2);
@@ -171,8 +150,8 @@ define(function (require, exports, module) {
         // x方向卷积，计算Ix
         util.each.xDirection(data, width, 0, 0, width, height, function (i, x, y) {
             i = i >> 2;
-            Ixs[i] = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, radius, boundaryFillColor.val), kernelX, 1, 0);
-            Iys[i] = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, radius, boundaryFillColor.val), kernelY, 1, 0);
+            Ixs[i] = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, radius, boundaryFillColor), kernelX, 1, 0);
+            Iys[i] = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, radius, boundaryFillColor), kernelY, 1, 0);
         });
 
         // y方向卷积，计算Iy
@@ -246,5 +225,4 @@ define(function (require, exports, module) {
     };
 
     module.exports.process = harrisCorner;
-    module.exports.setBoundaryFillColor = boundaryFillColor.set;
 });

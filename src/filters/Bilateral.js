@@ -2,20 +2,6 @@
  * 双边滤镜模块
  */
 define(function(require, exports, module) {
-	// 默认界外颜色
-	var boundaryFillColor = 127;
-
-	/**
-	 * 设置超界颜色
-	 * @param {Number} _boundaryFillColor  超界颜色
-	 */
-	var setBoundaryFillColor = function(_boundaryFillColor) {
-		if (_boundaryFillColor < 0 || _boundaryFillColor > 255) {
-			return;
-		}
-		boundaryFillColor = _boundaryFillColor;
-	};
-
 	/**
 	 * 基于rgb通道的双边滤波处理
 	 * @param {Array}  data   图像数据
@@ -25,10 +11,11 @@ define(function(require, exports, module) {
 	 * @param {Number} sigmad 基于距离的高斯滤波系数
 	 * @param {[type]} sigmar 基于色彩的高斯滤波系数
 	 */
-	var BilateralFilter = function(data, width, height, radius, sigmad, sigmar) {
+	var BilateralFilter = function(data, width, height, radius, sigmad, sigmar, boundaryFillColor) {
 		radius = radius || 3;
 		sigmad = sigmad || radius / 3;
 		sigmar = sigmar || 1;
+		boundaryFillColor = boundaryFillColor || 127;
 
 		// 计算一次高斯渐变
 		var gsDFilter = new Array(radius * 2 + 1),
@@ -49,7 +36,7 @@ define(function(require, exports, module) {
 			gsCFilter[i] = gsCFilter[0-i] = g1 * Math.exp(f1 * i * i);
 		};
 
-		var idxn = 0, idxt = 0, 
+		var idxn = 0, idxt = 0,
 			r, g, b, k,
 			weightr, weightg, weightb,
 			gaussSumr, gaussSumg, gaussSumb;
@@ -87,7 +74,7 @@ define(function(require, exports, module) {
 				data[idxt] = r / gaussSumr;
 				data[idxt + 1] = g / gaussSumg;
 				data[idxt + 2] = b / gaussSumb;
-			};	
+			};
 		};
 
 		// y方向计算像素颜色差值和像素距离差值的加权平均
@@ -121,7 +108,7 @@ define(function(require, exports, module) {
 				data[idxt] = r / gaussSumr;
 				data[idxt + 1] = g / gaussSumg;
 				data[idxt + 2] = b / gaussSumb;
-			};	
+			};
 		};
 	}
 
@@ -134,10 +121,11 @@ define(function(require, exports, module) {
 	 * @param {Number} sigmad 基于距离的高斯滤波权值
 	 * @param {[type]} sigmar 基于色彩的高斯滤波权值
 	 */
-	var BilateralFilterR = function(data, width, height, radius, sigmad, sigmar) {
+	var BilateralFilterR = function(data, width, height, radius, sigmad, sigmar, boundaryFillColor) {
 		radius = radius || 3;
 		sigmad = sigmad || radius/3;
 		sigmar = sigmar || 1;
+		boundaryFillColor = boundaryFillColor || 127;
 
 		// 计算一次高斯渐变
 		var gsDFilter = new Array(radius * 2 + 1),
@@ -155,7 +143,7 @@ define(function(require, exports, module) {
 			gsCFilter[i] = gsCFilter[0-i] = g1 * Math.exp(f1 * i * i);
 		};
 
-		var idxn = 0, idxt = 0, 
+		var idxn = 0, idxt = 0,
 			r, k,
 			weightr,
 			gaussSumr;
@@ -179,7 +167,7 @@ define(function(require, exports, module) {
 					gaussSumr += weightr;
 				};
 				data[idxt] = r / gaussSumr;
-			};	
+			};
 		};
 		// y方向渐变
 		for (var x = 0; x < width; x++) {
@@ -200,11 +188,10 @@ define(function(require, exports, module) {
 					gaussSumr += weightr;
 				};
 				data[idxt] = r / gaussSumr;
-			};	
+			};
 		};
-	}	
+	}
 
 	module.exports.process = BilateralFilter;
 	module.exports.process.r = BilateralFilterR;
-	module.exports.setBoundaryFillColor = setBoundaryFillColor;
 });

@@ -6,20 +6,6 @@ define(function(require, exports, module) {
 		Gray = require('./Gray').process,
 		Gauss = require('./Gauss');
 
-	// 默认界外颜色
-	var boundaryFillColor = 127;
-
-	/**
-	 * 设置超界颜色
-	 * @param {Number} _boundaryFillColor  超界颜色
-	 */
-	var setBoundaryFillColor = function(_boundaryFillColor) {
-		if (_boundaryFillColor < 0 || boundaryFillColor > 255) {
-			return;
-		}
-		boundaryFillColor = _boundaryFillColor;
-	};
-
 	/**
 	 * Sobel
 	 * @param {Array}   data   图像数据
@@ -28,19 +14,19 @@ define(function(require, exports, module) {
 	 * @param {Number}  trash  阀值
 	 * @param {Boolean} isNMS  是否需要非极大值抑制
 	 */
-	var Sobel = function(data, width, height, trash, isNMS) {
+	var Sobel = function(data, width, height, trash, isNMS, boundaryFillColor) {
+		boundaryFillColor = boundaryFillColor || 127;
 		// 灰度处理
 		Gray(data);
 
 		// 高斯滤波
-		Gauss.setBoundaryFillColor(127);
-		Gauss.process(data, width, height, 3, 1);
+		Gauss.process(data, width, height, 3, 1, boundaryFillColor);
 
 		var sobelRatioX = [
 			-1, 0, 1,
 			-2, 0, 2,
 			-1, 0, 1
-		],	
+		],
 			sobelRatioY = [
 			-1, -2, -1,
 			 0,  0,  0,
@@ -77,11 +63,10 @@ define(function(require, exports, module) {
 					data[i] = data[i + 1] = data[i + 2] = 255;
 				} else {
 					data[i] = data[i + 1] = data[i + 2] = 0;
-				}	
+				}
 			}
 		});
 	};
 
 	module.exports.process = Sobel;
-	module.exports.setBoundaryFillColor = setBoundaryFillColor;
 });
