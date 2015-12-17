@@ -5,20 +5,6 @@ define(function(require, exports, module) {
 	var util = require('../utils/util'),
 		Gauss = require('./Gauss').process;
 
-	// 默认界外颜色
-	var boundaryFillColor = 127;
-
-	/**
-	 * 设置超界颜色
-	 * @param {Number} _boundaryFillColor  超界颜色
-	 */
-	var setBoundaryFillColor = function(_boundaryFillColor) {
-		if (_boundaryFillColor < 0 || boundaryFillColor > 255) {
-			return;
-		}
-		boundaryFillColor = _boundaryFillColor;
-	};
-	
 	/**
 	 * Canny边缘处理函数
 	 * @param {Array}  data      图像数据
@@ -27,7 +13,7 @@ define(function(require, exports, module) {
 	 * @param {Number} highTrash 高阀值
 	 * @param {Number} lowTrash  低阀值
 	 */
-	var Canny = function(data, width, height, highTrash, lowTrash) {
+	var Canny = function(data, width, height, highTrash, lowTrash, boundaryFillColor) {
 		// 图像灰度化
 		for (var y = 0; y < height; y++) {
 	        for (var x = 0; x < width; x++) {
@@ -38,7 +24,7 @@ define(function(require, exports, module) {
 	            data[idx+2] = rgb;
 	        }
 	    }
-		
+
 		// 不传参时的默认阀值
 		if (!highTrash) {
 			highTrash = 100;
@@ -46,7 +32,8 @@ define(function(require, exports, module) {
 		if (!lowTrash) {
 			lowTrash = highTrash / 2;
 		};
-		
+		boundaryFillColor = boundaryFillColor || 127;
+
 		// 高斯平滑
 		Gauss(data, width, height, 2, 1.4);
 
@@ -55,7 +42,7 @@ define(function(require, exports, module) {
 			-1, 0, 1,
 			-1, 0, 1,
 			-1, 0, 1
-		],	
+		],
 			prewittRatioY = [
 			1,  1,  1,
 			0,  0,  0,
@@ -63,17 +50,20 @@ define(function(require, exports, module) {
 		];
 
 		var _data = util.copyImageData(data),
-			cx, cy, p1, p2,
+			cx = [], cy, p1, p2,
 			gradientMatrix = [], tanMatrix = [], gradient,
 			idx;
 
 		// 计算边缘梯度
 		util.each.xDirection(data, width, 0, 0, width, height, function(i, x, y){
-			cx = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, 1, boundaryFillColor), prewittRatioX, 1, 0),
+			cx[i] = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, 1, boundaryFillColor), prewittRatioX, 1, 0);
+		});
+
+		util.each.yDirection(data, width, 0, 0, width, height, function(i, x, y){
 			cy = util.convolution(util.getImageConvolution(_data, width, height, x, y, 0, 1, boundaryFillColor), prewittRatioY, 1, 0);
 
-			tanMatrix[i] = cx === 0 ? 1000 : cy / cx;
-			gradientMatrix[i] = Math.round(Math.sqrt(cx*cx + cy*cy));
+			tanMatrix[i] = cx[i] === 0 ? 1000 : cy / cx[i];
+			gradientMatrix[i] = Math.round(Math.sqrt(cx[i]*cx[i] + cy*cy));
 		});
 
 		_data = util.copyImageData(data);
@@ -100,7 +90,7 @@ define(function(require, exports, module) {
 				case 1: {
 					/**
 					 *    p1 p2
-					 *    c 
+					 *    c
 					 * p3 p4
 					 */
 					p1 = (gradientMatrix[((y-1) * width + x+1) << 2] - gradientMatrix[((y-1) * width + x) << 2]) / tanMatrix[i] + gradientMatrix[((y-1) * width + x) << 2];
@@ -110,7 +100,7 @@ define(function(require, exports, module) {
 				case -1: {
 					/**
 					 * p1 p2
-					 *    c 
+					 *    c
 					 *    p3 p4
 					 */
 					p1 = (gradientMatrix[((y-1) * width + x-1) << 2] - gradientMatrix[((y-1) * width + x) << 2]) * tanMatrix[i] * -1 + gradientMatrix[((y-1) * width + x) << 2];
@@ -119,7 +109,7 @@ define(function(require, exports, module) {
 				}
 				case -2: {
 					/**
-					 * p1   
+					 * p1
 					 * p2 c p3
 					 *      p4
 					 */
@@ -135,7 +125,7 @@ define(function(require, exports, module) {
 				data[i] = data[i+1] = data[i+2] = 0;
 			}
 		});
-		
+
 		// 双阀值检测和连接边缘
 		// 遍历上述梯度方向上的最大值点, 保留大于高阀值(highTrash)的点, 去掉低于低阀值(lowTrash)的点,
 		// 在两者之间的则寻找周围八个点中, 如果有高于高阀值的就保留
@@ -147,7 +137,7 @@ define(function(require, exports, module) {
 			} else if (gradient < lowTrash){
 				data[i] = data[i + 1] = data[i + 2] = 0;
 			} else {
-				data[_idx] = data[_idx + 1] = data[_idx + 2] = 0;
+				data[i] = data[i + 1] = data[i + 2] = 0;
 				var dx = [-1, 0, 1, -1, 1, -1, 0, 1],
 					dy = [-1, -1, -1, 0, 0, 1, 1, 1],
 					cx, cy, _idx;
@@ -156,13 +146,12 @@ define(function(require, exports, module) {
 					cy = y + dy[i];
 					_idx = (cy * width + cx) << 2;
 					if (gradientMatrix[_idx] >= highTrash) {
-						data[_idx] = data[_idx + 1] = data[_idx + 2] = 255;
+						data[i] = data[i + 1] = data[i + 2] = 255;
 					}
 				};
 			}
 		});
 	}
 
-	module.exports.setBoundaryFillColor = setBoundaryFillColor;
 	module.exports.process = Canny;
 });

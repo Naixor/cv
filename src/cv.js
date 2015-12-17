@@ -11,7 +11,10 @@ define(function(require, exports, module) {
 		Canny: require('./filters/Canny'),
 		Bilateral: require('./filters/Bilateral'),
 		DoG: require('./filters/DoG'),
-		Cartoon: require('./filters/Cartoon')
+		Cartoon: require('./filters/Cartoon'),
+		HarrisCorner: require('./filters/HarrisCorner'),
+		SIFT: require('./filters/SIFT'),
+		LoG: require('./filters/LoG')
 	}
 
 	module.exports.canvas = require('./canvas/canvas');
