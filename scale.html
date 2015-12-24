@@ -43,7 +43,6 @@
         define('start', function (require) {
             var CV = require('./cv');
             var scale = require('./scale/Bilinear').process;
-            var downSampling = require('./filters/SIFT').downSampling;
 
             var file = document.getElementById("file");
             var bilateral = document.getElementById("bilateral");
@@ -61,12 +60,10 @@
                     var scaleXY = bilateral.value.split(',');
                     var scaleX = scaleXY[0] || 1;
                     var scaleY = scaleXY[1] || scaleX;
-                    // var draw = scale(ctx.getImageData(0, 0, width, height).data, width, height, scaleX, scaleY);
-                    var draw = downSampling(ctx.getImageData(0, 0, width, height).data, width, height);
+                    var draw = scale(ctx.getImageData(0, 0, width, height).data, width, height, scaleX, scaleY);
                     canvasScale.width = draw.width;
                     canvasScale.height = draw.height;
                     var context = canvasScale.getContext('2d');
-;
                     context.putImageData(draw, 0, 0);
                 });
             }
