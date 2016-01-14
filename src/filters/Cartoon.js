@@ -37,16 +37,16 @@ define(function(require, exports, module) {
 				labArr.push(lab[n]);
 			};
 			labArr.push(255);
-		});	
-		
+		});
+
 		// 多次双边滤波
 		BilateralFilter.r(labArr, width, height, 3, 3, 5);
 		BilateralFilter.r(labArr, width, height, 3, 3, 5);
 		BilateralFilter.r(labArr, width, height, 3, 3, 5);
-		BilateralFilter.r(labArr, width, height, 3, 3, 5);
-		BilateralFilter.r(labArr, width, height, 3, 3, 5);
-		BilateralFilter.r(labArr, width, height, 3, 3, 5);
-		
+		// BilateralFilter.r(labArr, width, height, 3, 3, 5);
+		// BilateralFilter.r(labArr, width, height, 3, 3, 5);
+		// BilateralFilter.r(labArr, width, height, 3, 3, 5);
+
 		// 基于lab的l通道做锯齿量化处理, 处理函数为tanh
 		util.each.xDirection(labArr, width, 0, 0, width, height, function(i, x, y) {
 			qnearest = Math.tanh(q * (Qbin - labArr[i] % Qbin));
@@ -65,10 +65,10 @@ define(function(require, exports, module) {
 		});
 
 		// DoG + Canny描边
-		DoG(_data2, width, height, 3, 3, 1, 0.3, 6);
+		DoG(_data2, width, height, 3, 3, 0.7, 0.5);
 		Canny(_data1, width, height, 100, 30);
-		
-		// 将描边画到图上
+		//
+		// // 将描边画到图上
 		util.each.xDirection(data, width, 0, 0, width, height, function(i) {
 			if (_data1[i] === 255) {
 				data[i] = data[i + 1] = data[i + 2] = 0;

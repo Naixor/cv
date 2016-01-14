@@ -20,8 +20,8 @@ define(function(require, exports, module) {
 	 * @param {Number} sigma2  第二次高斯滤波的系数
 	 */
 	var diff = function (data, width, height, radius1, radius2, sigma1, sigma2, boundaryFillColor) {
-		var gaussData1 = util.copyImageData(data);
-		var gaussData2 = util.copyImageData(data);
+		var gaussData1 = util.copyToArray(data);
+		var gaussData2 = util.copyToArray(data);
 		var array = new Array(width * height);
 
 		// 两次不同的高斯卷积
@@ -86,7 +86,7 @@ define(function(require, exports, module) {
 	}
 
 	var kSigma = function (sigma, k, i) {
-		return +(Math.pow(k, i) * sigma).toFixed(1);
+		return Math.pow(k, i) * sigma;
 	}
 
 	/**
@@ -110,18 +110,16 @@ define(function(require, exports, module) {
 		Gray(data);
 		var DEFAULT_GAUSS_RADIUS = 2;
 		var corners = [];
-		var levels = [data];
+		var levels = [];
 		level = level || DEFAULT_DOG_LEVEL;
-		var k = Math.pow(2, 1 / level);
+		var k = Math.pow(2, 1 / 2);
 		var sigma = 0.5;
 
 		for (var i = level; i--;) {
 			// level层sigma值初始
 			corners.push([kSigma(sigma, k, i), kSigma(sigma, k, i+1)]);
 			// level层高斯模板初始
-			if (i) {
-				levels.push(util.copyImageData(data));
-			}
+			levels.push(util.copyToArray(data));
 		}
 		// 计算level层高斯滤镜
 		levels.map(function (level, i) {
@@ -160,18 +158,18 @@ define(function(require, exports, module) {
 		// 灰度处理
 		Gray(data);
 
-		diff(data, width, height, radius1, radius2, sigma1, sigma2, boundaryFillColor);
+		var bData = diff(data, width, height, radius1, radius2, sigma1, sigma2, boundaryFillColor);
 
 		// 对两次高斯卷积求差, 小于阀值的丢弃, 大于阀值的绘制
 		util.each.xDirection(data, width, 0, 0, width, height, function(i) {
 			if (trash > 0) {
-				if (data[i] < trash) {
+				if (bData[i >> 2] < trash) {
 					data[i] = data[i + 1] = data[i + 2] = 0;
 				} else {
 					data[i] = data[i + 1] = data[i + 2] = 255;
 				}
 			} else {
-				data[i] = data[i + 1] = data[i + 2] = data[i] * 100;
+				data[i] = data[i + 1] = data[i + 2] = bData[i >> 2] / (sigma1 - sigma2);
 			}
 		});
 	}

@@ -3,18 +3,33 @@
  * @auth Naixor
  */
 define(function (require) {
-    var Matrix = function Matrix (matrix) {
+    var Matrix = function Matrix () {
         Array.prototype.constructor.call(this);
         this.width = 0;
         this.height = 0;
-        if (!matrix) {
-            return this;
-        } else {
-            if (matrix instanceof Array) {
-                this.copy(matrix);
+        switch (arguments.length) {
+            case 1: {
+                var matrix = arguments[0];
+                if (matrix instanceof Array) {
+                    return this.copy(matrix);
+                }
             }
+            case 2:
+            case 3: {
+                this.width = +arguments[0];
+                this.height = +arguments[1];
+                if (this.width < 0 || this.height < 0) {
+                    throw new Error('Matrix(width, height, value) 构造函数width,height不能为负');
+                }
+                var val = +arguments[2] || 0;
+                for (var i = 0; i < this.height; i++) {
+                    this.push(Array(this.width).fill(val));
+                }
+                return this;
+            }
+            default:
+                return this;
         }
-        return this;
     }
 
     Matrix.prototype = Object.create(Array.prototype);
@@ -24,7 +39,13 @@ define(function (require) {
     }
 
     Matrix.prototype.toString = function () {
-        return '[[' + this.join('],[') + ']]';   
+        return '[[' + this.join('],[') + ']]';
+    }
+
+    Matrix.prototype.toArray = function () {
+        return this.reduce(function (pre, cur) {
+            return pre.concat(cur);
+        }, []);
     }
 
     Matrix.prototype.eql = function (matrix) {
@@ -82,6 +103,13 @@ define(function (require) {
 
         this.width = width;
         this.height = height;
+    }
+
+    Matrix.prototype.set = function (x, y, val) {
+        if (x >= this.width || x < 0 || y >= this.height || y < 0) {
+            throw new Error('Matrix::set 设置的('+ x +', '+ y +')超界');
+        }
+        this[y][x] = val;
     }
 
     Matrix.prototype['*'] = function (matrix) {

@@ -3,7 +3,8 @@
  * @file Bilinear.js
  * @author Naixor
  */
-define(function (require, exports, module) {
+define(function (require) {
+    var exports = {};
     var util = require('../utils/util');
 
     var getPixelPosition = function (width, x, y) {
@@ -29,6 +30,15 @@ define(function (require, exports, module) {
         return rgba;
     }
 
+    /**
+     * 双线性插值放大缩小图像
+     * @method Bilinear
+     * @param  {[type]} data   [description]
+     * @param  {[type]} width  [description]
+     * @param  {[type]} height [description]
+     * @param  {[type]} scaleX [description]
+     * @param  {[type]} scaleY [description]
+     */
     var Bilinear = function (data, width, height, scaleX, scaleY) {
         scaleX = scaleX || 1;
         scaleY = scaleY || scaleX;
@@ -65,5 +75,7 @@ define(function (require, exports, module) {
         return new ImageData(imageScaled, nWidth, nHeight)
     }
 
-    module.exports.process = Bilinear;
+    exports.process = Bilinear;
+
+    return exports;
 });

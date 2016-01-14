@@ -98,6 +98,17 @@ define(function(require) {
 	};
 
 	/**
+	 * 将图像数据转换成为Array对象, 由于图像数据内部计算后会导致小数部分四舍五入, 不利于某些
+	 * 情况的极值查找
+	 * @method copyToArray
+	 * @param  {Unit8Array}    data 图像数据
+	 * @return {Array}         与图像数据内容一致的数组
+	 */
+	var copyToArray = function (data) {
+		return Array.prototype.slice.call(data);
+	};
+
+	/**
 	 * 创建可直接用于canvas context drawImage使用的数据，测试用
 	 * @method createImageDate
 	 * @param  {[type]}        data   [description]
@@ -174,6 +185,7 @@ define(function(require) {
 	exports.getImageConvolution = getImageConvolution;
 	exports.convolution = convolution;
 	exports.copyImageData = copyImageData;
+	exports.copyToArray = copyToArray;
 	exports.createImageDate = createImageDate;
 	exports.BoundaryFillColor = BoundaryFillColor;
 
