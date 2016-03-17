@@ -40,6 +40,7 @@
 		<p><button id="DoGCorner">DoGCorner: </button></p>
 		<p><button id="LoG">LoG: </button></p>
 		<p><button id="Sift">SIFT: </button></p>
+		<p><button id="Alpha">AlphaCompositing: </button></p>        
         <p><button id="ok">OK</button></p>
     </div>
     <canvas id="canvas"></canvas>
@@ -189,6 +190,13 @@
                 name: 'SIFT',
                 func: CV.filter.SIFT.process,
                 args: null
+            });
+        }
+        document.getElementById("Alpha").onclick = function () {
+            scope.processes.push({
+                name: 'alphaCompositing',
+                func: CV.filter.alphaCompositing.process,
+                args: [[255,0,0], 0.4, 100, 100, 50, 50]
             });
         }
     });

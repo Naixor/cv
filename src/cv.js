@@ -14,8 +14,9 @@ define(function(require, exports, module) {
 		Cartoon: require('./filters/Cartoon'),
 		HarrisCorner: require('./filters/HarrisCorner'),
 		SIFT: require('./filters/SIFT'),
-		LoG: require('./filters/LoG')
-	}
+		LoG: require('./filters/LoG'),
+        alphaCompositing: require('./filters/alphaCompositing')
+	};
 
 	module.exports.canvas = require('./canvas/canvas');
 });

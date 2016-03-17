@@ -13,6 +13,7 @@ define(function (require) {
                 if (matrix instanceof Array) {
                     return this.copy(matrix);
                 }
+                break;
             }
             case 2:
             case 3: {
